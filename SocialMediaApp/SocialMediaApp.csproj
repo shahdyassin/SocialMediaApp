@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\avatar\" />
+    <Folder Include="wwwroot\images\Uploaded\" />
     <Folder Include="wwwroot\images\placeholders\" />
   </ItemGroup>
 
