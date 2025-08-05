@@ -20,7 +20,9 @@ namespace SocialMediaApp.Controllers
 
         public async Task<IActionResult> Index()
         {
+            int loggedInUserId = 1;
             var allPosts = await _context.Posts
+                .Where(n => !n.IsPrivate || n.UserId == loggedInUserId)
                 .Include(n => n.User)
                 .Include(n => n.Likes)
                 .Include(n => n.Favorites)
@@ -126,6 +128,24 @@ namespace SocialMediaApp.Controllers
                 await _context.Favorites.AddAsync(newFav);
                 await _context.SaveChangesAsync();
             }
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> TogglePostVisibility(PostVisibilityVM visibilityVM)
+        {
+            int loggedInUserId = 1;
+
+            //Get Post by Id and logged in User
+            var post = await _context.Posts
+                .FirstOrDefaultAsync(l => l.Id == visibilityVM.PostId && l.UserId == loggedInUserId);
+
+            if (post != null)
+            {
+                post.IsPrivate = !post.IsPrivate;
+                 _context.Posts.Update(post);
+                await _context.SaveChangesAsync();
+            }
+           
             return RedirectToAction("Index");
         }
         [HttpPost]
