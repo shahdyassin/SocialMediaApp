@@ -23,6 +23,7 @@ namespace SocialMediaApp.Controllers
             var allPosts = await _context.Posts
                 .Include(n => n.User)
                 .Include(n => n.Likes)
+                .Include(n => n.Favorites)
                 .Include(n => n.Comments).ThenInclude(n => n.User)
                 .OrderByDescending(n => n.DateCreated)
                 .ToListAsync();
@@ -101,6 +102,33 @@ namespace SocialMediaApp.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
+        public async Task<IActionResult> TogglePostFavorite(PostFavoriteVM favoriteVM)
+        {
+            int loggedInUserId = 1;
+
+            //Check if the user has already favorited the post
+            var fav = await _context.Favorites
+                .Where(l => l.PostId == favoriteVM.PostId && l.UserId == loggedInUserId)
+                .FirstOrDefaultAsync();
+
+            if (fav != null)
+            {
+                _context.Favorites.Remove(fav);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                var newFav = new Favorite
+                {
+                    PostId = favoriteVM.PostId,
+                    UserId = loggedInUserId
+                };
+                await _context.Favorites.AddAsync(newFav);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
         public async Task<IActionResult> AddPostComment(PostCommentVM commentVM)
         {
             int loggedInUserId = 1;
@@ -131,5 +159,6 @@ namespace SocialMediaApp.Controllers
             }
             return RedirectToAction("Index");
         }
+
     }
 }
