@@ -11,6 +11,7 @@ namespace SocialMediaApp.Data.Models
         public int Id { get; set; }
         public string FullName { get; set; }
         public string? ProfilePictureUrl { get; set; }
+        public bool IsDeleted { get; set; }
 
         //Navigation Properities
         public ICollection<Post> Posts { get; set; } = new List<Post>();
