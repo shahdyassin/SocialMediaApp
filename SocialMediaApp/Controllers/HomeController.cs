@@ -23,6 +23,7 @@ namespace SocialMediaApp.Controllers
             var allPosts = await _context.Posts
                 .Include(n => n.User)
                 .Include(n => n.Likes)
+                .Include(n => n.Comments).ThenInclude(n => n.User)
                 .OrderByDescending(n => n.DateCreated)
                 .ToListAsync();
             return View(allPosts);
@@ -95,6 +96,37 @@ namespace SocialMediaApp.Controllers
                     UserId = loggedInUserId
                 };
                 await _context.Likes.AddAsync(newLike);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddPostComment(PostCommentVM commentVM)
+        {
+            int loggedInUserId = 1;
+            //Create Comment
+            var newComment = new Comment
+            {
+                Content = commentVM.Content,
+                DateCreated = DateTime.UtcNow,
+                DateUpdated = DateTime.UtcNow,
+                PostId = commentVM.PostId,
+                UserId = loggedInUserId
+            };
+            //Add the new comment to the database
+            await _context.Comments.AddAsync(newComment);
+            await _context.SaveChangesAsync();
+            //Redirect to the index action to show the updated list of posts
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> RemovePostComment(RemoveCommentVM commentVM)
+        {
+            var commentDb = await _context.Comments.FirstOrDefaultAsync(c => c.Id == commentVM.CommentId);
+
+            if(commentDb != null)
+            {
+                _context.Comments.Remove(commentDb);
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction("Index");
