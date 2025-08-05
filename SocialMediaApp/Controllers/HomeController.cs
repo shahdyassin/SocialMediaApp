@@ -22,11 +22,12 @@ namespace SocialMediaApp.Controllers
         {
             int loggedInUserId = 1;
             var allPosts = await _context.Posts
-                .Where(n => !n.IsPrivate || n.UserId == loggedInUserId)
+                .Where(n => (!n.IsPrivate || n.UserId == loggedInUserId) && n.Reports.Count < 5)
                 .Include(n => n.User)
                 .Include(n => n.Likes)
                 .Include(n => n.Favorites)
                 .Include(n => n.Comments).ThenInclude(n => n.User)
+                .Include(n => n.Reports)
                 .OrderByDescending(n => n.DateCreated)
                 .ToListAsync();
             return View(allPosts);
@@ -163,6 +164,23 @@ namespace SocialMediaApp.Controllers
             };
             //Add the new comment to the database
             await _context.Comments.AddAsync(newComment);
+            await _context.SaveChangesAsync();
+            //Redirect to the index action to show the updated list of posts
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddPostReport(PostReportVM reportVM)
+        {
+            int loggedInUserId = 1;
+            
+            var newReport = new Report
+            {
+                DateCreated = DateTime.UtcNow,
+                PostId = reportVM.PostId,
+                UserId = loggedInUserId
+            };
+            
+            await _context.Reports.AddAsync(newReport);
             await _context.SaveChangesAsync();
             //Redirect to the index action to show the updated list of posts
             return RedirectToAction("Index");

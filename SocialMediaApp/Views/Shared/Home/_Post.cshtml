@@ -11,7 +11,8 @@
     };
     bool isFavorited = Model.Favorites.Any(n => n.UserId == 1);
     bool isLiked = Model.Likes.Any(n => n.UserId == 1);
-    bool isPrivate = Model.IsPrivate == true && Model.UserId == 1; 
+    bool isPrivate = Model.IsPrivate == true && Model.UserId == 1;
+    bool isReported = Model.Reports.Any(n => n.UserId == 1);
 }
 <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
 
@@ -39,22 +40,26 @@
                         </button>
                     </form>
                     <hr>
+                    <form asp-controller="Home" asp-action="Delete">
+                        <input type="hidden" name="postId" />
+                        <button type="submit" class="text-red-400 hover:!bg-red-50 icon-link">
+                            <ion-icon name="trash-bin-outline"></ion-icon>  Delete Post
+                        </button>
+                    </form>
                 }
-               
+                else
+                {
+                    @if (!isReported)
+                    {
+                        <form asp-controller="Home" asp-action="AddPostReport">
+                            <input type="hidden" name="postId" value="@Model.Id" />
+                            <button type="submit" class="hover:!bg-red-50 icon-link">
+                                <ion-icon class="text-xl shrink-0" name="flag-outline"></ion-icon>  Report
+                            </button>
+                        </form>
+                    }
+                }
 
-                
-                <form asp-controller="Home" asp-action="Delete">
-                    <input type="hidden" name="postId" />
-                    <button type="submit" class="text-red-400 hover:!bg-red-50 icon-link">
-                        <ion-icon name="trash-bin-outline"></ion-icon>  Delete Post
-                    </button>
-                </form>
-                <form asp-controller="Home" asp-action="Report">
-                    <input type="hidden" name="postId" />
-                    <button type="submit" class="hover:!bg-red-50 icon-link">
-                        <ion-icon class="text-xl shrink-0" name="flag-outline"></ion-icon>  Report
-                    </button>
-                </form>
             </div>
         </div>
     </div>
@@ -105,15 +110,15 @@
         <div class="flex items-center gap-2">
             <form asp-controller="Home" asp-action="TogglePostFavorite">
                 <input type="hidden" name="postId" value="@Model.Id" />
-                <button type="submit" class="button-icon ml-auto @(isFavorited ? " text-orange-500 bt-orange-100": "" )">
+                <button type="submit" class="button-icon ml-auto @(isFavorited ? " text-orange-500 bt-orange-100" : "")">
                     <ion-icon class="text-lg" name="@(isFavorited ? "bookmark" : "bookmark-outline")"></ion-icon>
                 </button>
             </form>
-            @if(Model.Favorites.Count > 0)
+            @if (Model.Favorites.Count > 0)
             {
                 <a href="#">@Model.Favorites.Count</a>
             }
-           
+
         </div>
     </div>
 
@@ -155,17 +160,17 @@
                                 </button>
                             </form>
                         </div>
-                       
+
                     </div>
                 </div>
             }
-            @if(Model.Comments.Count >= 3)
+            @if (Model.Comments.Count >= 3)
             {
                 <div class="p-1\.5">
                     <a>
                         Show All Comments
                     </a>
-                   
+
                 </div>
             }
         </div>
