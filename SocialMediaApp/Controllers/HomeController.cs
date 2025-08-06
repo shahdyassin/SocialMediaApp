@@ -54,7 +54,7 @@ namespace SocialMediaApp.Controllers
                 string rootFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                 if (post.Image.ContentType.Contains("image"))
                 {
-                    string rootFolderPathImages = Path.Combine(rootFolderPath, "images/Uploaded");
+                    string rootFolderPathImages = Path.Combine(rootFolderPath, "images/Posts");
                     Directory.CreateDirectory(rootFolderPathImages);
 
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(post.Image.FileName);
@@ -66,7 +66,7 @@ namespace SocialMediaApp.Controllers
                     }
 
                     //Set URL to new Post Object
-                    newPost.ImageUrl = "/images/Uploaded/" + fileName;
+                    newPost.ImageUrl = "/images/Posts/" + fileName;
                 }
             }
 

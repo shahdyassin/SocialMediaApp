@@ -15,6 +15,7 @@ namespace SocialMediaApp.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<Story> Stories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,6 +23,12 @@ namespace SocialMediaApp.Data
                 .HasMany(u => u.Posts)
                 .WithOne(p => p.User)
                 .HasForeignKey(p => p.UserId);
+
+            //Stories
+            modelBuilder.Entity<User>()
+               .HasMany(u => u.Stories)
+               .WithOne(p => p.User)
+               .HasForeignKey(p => p.UserId);
 
             //Likes
             modelBuilder.Entity<Like>()

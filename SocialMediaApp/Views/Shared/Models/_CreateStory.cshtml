@@ -1,4 +1,5 @@
-﻿
+﻿@model StoryVM
+
 <div class="hidden lg:p-20" id="create-story" uk-modal="">
     <div class="uk-modal-dialog tt relative overflow-hidden mx-auto bg-white p-7 shadow-xl rounded-lg md:w-[520px] w-full">
 
@@ -40,3 +41,23 @@
 
     </div>
 </div>
+<script>
+    document.getElementById('storyUploadBtn').addEventListener('click' , () => {
+        document.getElementById('imageUpload').click();
+    });
+
+    document.getElementById('storyUpload').addEventListener('change' , (event) => {
+      const file = event.target.files[0];
+      const storyPreview = document.getElementById('storyPreview');
+
+      if(file){
+          const reader = new FileReader();
+          reader.onload = (e) => {
+              storyPreview.src = e.target.result;
+          }
+          reader.readAsDataURL(file);
+      }else{
+        storyPreview.src = "";
+      }
+    });
+</script>
