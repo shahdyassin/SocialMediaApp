@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SocialMediaApp.Data;
+using SocialMediaApp.Data.Helpers;
 using SocialMediaApp.Data.Models;
 using SocialMediaApp.ViewModels.Home;
 
@@ -73,6 +74,35 @@ namespace SocialMediaApp.Controllers
             //Add the new post to the database
             await _context.Posts.AddAsync(newPost);
             await _context.SaveChangesAsync();
+
+
+            //Check for Hashtags in the post content
+            var postHashtags = HashtagHelper.GetHashtags(post.Content);
+            foreach(var hashtag in postHashtags)
+            {
+                var hashtagDb = await _context.Hashtags
+                    .FirstOrDefaultAsync(h => h.Name == hashtag);
+                if(hashtagDb != null)
+                {
+                    hashtagDb.Count++;
+                    hashtagDb.DateUpdated = DateTime.UtcNow;
+
+                    _context.Hashtags.Update(hashtagDb);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    var newHashtag = new Hashtag
+                    {
+                        Name = hashtag,
+                        Count = 1,
+                        DateCreated = DateTime.UtcNow,
+                        DateUpdated = DateTime.UtcNow
+                    };
+                    await _context.Hashtags.AddAsync(newHashtag);
+                    await _context.SaveChangesAsync(); 
+                }
+            }
 
             //Redirect to the index action to show the updated list of posts
             return RedirectToAction("Index");
@@ -208,7 +238,26 @@ namespace SocialMediaApp.Controllers
                 postDb.IsDeleted = true; // Soft delete
                 _context.Posts.Update(postDb);
                 await _context.SaveChangesAsync();
+
+                //Update Hashtags
+                var postHashtags = HashtagHelper.GetHashtags(postDb.Content);
+                foreach (var hashtag in postHashtags)
+                {
+                    var hashtagDb = await _context.Hashtags
+                        .FirstOrDefaultAsync(h => h.Name == hashtag);
+                    if (hashtagDb != null)
+                    {
+                        hashtagDb.Count--;
+                       hashtagDb.DateUpdated = DateTime.UtcNow;
+                        
+                        _context.Hashtags.Update(hashtagDb);
+                        await _context.SaveChangesAsync();
+                    }
+                } 
             }
+
+            
+
             return RedirectToAction("Index");
         }
     }
