@@ -1,50 +1,37 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SocialMediaApp.Data;
+using SocialMediaApp.Data.Helpers.Enums;
 using SocialMediaApp.Data.Models;
+using SocialMediaApp.Data.Services;
 using SocialMediaApp.ViewModels.Stories;
 
 namespace SocialMediaApp.Controllers
 {
     public class StoriesController : Controller
     {
-        private readonly AppDbContext _context;
-        public StoriesController(AppDbContext context)
+        private readonly IStoriesService _services;
+        private readonly IFilesService _files;
+        public StoriesController(IStoriesService services , IFilesService files)
         {
-            _context = context;
+           _services = services;
+              _files = files;
         }
         [HttpPost]
         public async Task<IActionResult> CreateStory(StoryVM story)
         {
             int loggedInUserId = 1;
+
+            var imageUploadPath = await _files.UploadImageAsync(story.Image, ImageFileType.StoryImage);
             var newStory = new Story
             {
                 DateCreated = DateTime.UtcNow,
                 IsDeleted = false,
+                ImageUrl = imageUploadPath,
                 UserId = loggedInUserId
             };
-            if (story.Image != null && story.Image.Length > 0)
-            {
-                string rootFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                if (story.Image.ContentType.Contains("image"))
-                {
-                    string rootFolderPathImages = Path.Combine(rootFolderPath, "images/Stories");
-                    Directory.CreateDirectory(rootFolderPathImages);
-
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(story.Image.FileName);
-                    string filePath = Path.Combine(rootFolderPathImages, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await story.Image.CopyToAsync(stream);
-                    }
-
-                    //Set URL to new Post Object
-                    newStory.ImageUrl = "/images/Stories/" + fileName;
-                }
-            }
-            await _context.Stories.AddAsync(newStory);
-            await _context.SaveChangesAsync();
+           
+           await _services.CreateStoryAsync(newStory);
             return RedirectToAction("Index" , "Home");
         }
     }

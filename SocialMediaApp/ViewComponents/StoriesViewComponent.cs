@@ -1,22 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SocialMediaApp.Data;
+using SocialMediaApp.Data.Services;
 
 namespace SocialMediaApp.ViewComponents
 {
     public class StoriesViewComponent : ViewComponent
     {
-        private readonly AppDbContext _context;
-        public StoriesViewComponent(AppDbContext context)
+        private readonly IStoriesService _services;
+        public StoriesViewComponent(IStoriesService services)
         {
-            _context = context;
+            _services = services;
         }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var allStories = await _context.Stories
-                .Where(n => n.DateCreated >= DateTime.UtcNow.AddHours(-24))
-                .Include(s => s.User)
-                .ToListAsync();
+            var allStories = await _services.GetAllStoriesAsync();
+
             return View(allStories);
         }
     }

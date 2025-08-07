@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SocialMediaApp.Data;
 using SocialMediaApp.Data.Helpers;
+using SocialMediaApp.Data.Services;
 using System.Threading.Tasks;
 
 namespace SocialMediaApp
@@ -17,6 +18,11 @@ namespace SocialMediaApp
             //DataBase Configuration
             var dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(dbConnectionString));
+
+            builder.Services.AddScoped<IPostService, PostService>();
+            builder.Services.AddScoped<IHashtagsService, HashtagsService>();
+            builder.Services.AddScoped<IStoriesService, StoriesService>();
+            builder.Services.AddScoped<IFilesService, FilesService>();
             var app = builder.Build();
 
             //Seed Database with Initial Data
