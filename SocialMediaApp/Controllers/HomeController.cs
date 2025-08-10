@@ -31,6 +31,11 @@ namespace SocialMediaApp.Controllers
             var allPosts = await _service.GetAllPostsAsync(loggedInUserId);
             return View(allPosts);
         }
+        public async Task<IActionResult> Details(int postId)
+        {
+            var post = await _service.GetPostByIdAsync(postId);
+            return View(post);
+        }
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostVM post)
         {
