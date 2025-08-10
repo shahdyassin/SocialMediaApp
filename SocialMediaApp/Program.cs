@@ -23,6 +23,7 @@ namespace SocialMediaApp
             builder.Services.AddScoped<IHashtagsService, HashtagsService>();
             builder.Services.AddScoped<IStoriesService, StoriesService>();
             builder.Services.AddScoped<IFilesService, FilesService>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
             var app = builder.Build();
 
             //Seed Database with Initial Data
