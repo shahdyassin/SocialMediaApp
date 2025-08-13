@@ -13,16 +13,20 @@
 </head>
 <body>
 
-    <div id="wrapper">
+<div id="wrapper">
+    @if (User.Identity.IsAuthenticated)
+    {
         @* TopBar *@
-       <partial name="Navigation/_TopBar"/>
+        <partial name="Navigation/_TopBar"/>
 
         @* Side bar (left) *@
-        <partial name="Navigation/_SideBar" />
+        <partial name="Navigation/_SideBar"/>
+    }
+   
 
 
-        @RenderBody()
-    </div>
+    @RenderBody()
+</div>
 
 
 

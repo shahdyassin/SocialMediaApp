@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SocialMediaApp.Data.Services;
 
 namespace SocialMediaApp.Controllers
 {
+    [Authorize]
+
     public class FavoritesController : Controller
     {
         private readonly IPostService _postService;

@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SocialMediaApp.Data.Helpers.Enums;
 using SocialMediaApp.Data.Services;
 using SocialMediaApp.ViewModels.Settings;
 
 namespace SocialMediaApp.Controllers
 {
+    [Authorize]
+
     public class SettingsController : Controller
     {
         private readonly IUsersService _service;
