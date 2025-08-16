@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SocialMediaApp.Controllers.Base;
 using SocialMediaApp.Data;
 using SocialMediaApp.Data.Helpers.Enums;
 using SocialMediaApp.Data.Models;
@@ -11,7 +12,7 @@ namespace SocialMediaApp.Controllers
 {
     [Authorize]
 
-    public class StoriesController : Controller
+    public class StoriesController : BaseController
     {
         private readonly IStoriesService _services;
         private readonly IFilesService _files;
@@ -23,7 +24,9 @@ namespace SocialMediaApp.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateStory(StoryVM story)
         {
-            int loggedInUserId = 1;
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+                return RedirectToLogIn();
 
             var imageUploadPath = await _files.UploadImageAsync(story.Image, ImageFileType.StoryImage);
             var newStory = new Story
@@ -31,7 +34,7 @@ namespace SocialMediaApp.Controllers
                 DateCreated = DateTime.UtcNow,
                 IsDeleted = false,
                 ImageUrl = imageUploadPath,
-                UserId = loggedInUserId
+                UserId = loggedInUserId.Value
             };
            
            await _services.CreateStoryAsync(newStory);

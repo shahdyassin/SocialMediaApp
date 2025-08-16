@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SocialMediaApp.Controllers.Base;
 using SocialMediaApp.Data;
 using SocialMediaApp.Data.Helpers;
 using SocialMediaApp.Data.Helpers.Enums;
@@ -12,7 +14,7 @@ using SocialMediaApp.ViewModels.Home;
 namespace SocialMediaApp.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IPostService _service;
@@ -29,8 +31,10 @@ namespace SocialMediaApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            int loggedInUserId = 1;
-            var allPosts = await _service.GetAllPostsAsync(loggedInUserId);
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+                return RedirectToLogIn();
+            var allPosts = await _service.GetAllPostsAsync(loggedInUserId.Value);
             return View(allPosts);
         }
         public async Task<IActionResult> Details(int postId)
@@ -41,7 +45,9 @@ namespace SocialMediaApp.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostVM post)
         {
-            int loggedInUser = 1;
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+                return RedirectToLogIn();
 
             var imageUploadPath = await _files.UploadImageAsync(post.Image, ImageFileType.PostImage);
             // This should be replaced with actual user ID from session or authentication context
@@ -54,7 +60,7 @@ namespace SocialMediaApp.Controllers
                 DateUpdated = DateTime.UtcNow,
                 ImageUrl = imageUploadPath,
                 NrOfReports = 0,
-                UserId = loggedInUser
+                UserId = loggedInUserId.Value
             };
             
             await _service.CreatePostAsync(newPost);
@@ -70,8 +76,10 @@ namespace SocialMediaApp.Controllers
         [HttpPost]
         public async Task<IActionResult> TogglePostLike(PostLikeVM postLikeVM)
         {
-            int loggedInUserId = 1;
-            await _service.TogglePostLikeAsync(postLikeVM.PostId , loggedInUserId);
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+                return RedirectToLogIn();
+            await _service.TogglePostLikeAsync(postLikeVM.PostId , loggedInUserId.Value);
 
            
             return RedirectToAction("Index");
@@ -79,24 +87,30 @@ namespace SocialMediaApp.Controllers
         [HttpPost]
         public async Task<IActionResult> TogglePostFavorite(PostFavoriteVM favoriteVM)
         {
-            int loggedInUserId = 1;
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+                return RedirectToLogIn();
              
-            await _service.TogglePostFavoriteAsync(favoriteVM.PostId, loggedInUserId);
+            await _service.TogglePostFavoriteAsync(favoriteVM.PostId, loggedInUserId.Value);
 
             return RedirectToAction("Index");
         }
         [HttpPost]
         public async Task<IActionResult> TogglePostVisibility(PostVisibilityVM visibilityVM)
         {
-            int loggedInUserId = 1;
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+                return RedirectToLogIn();
 
-           await _service.TogglePostVisibilityAsync(visibilityVM.PostId, loggedInUserId);
+           await _service.TogglePostVisibilityAsync(visibilityVM.PostId, loggedInUserId.Value);
             return RedirectToAction("Index");
         }
         [HttpPost]
         public async Task<IActionResult> AddPostComment(PostCommentVM commentVM)
         {
-            int loggedInUserId = 1;
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+                return RedirectToLogIn();
 
             
             //Create Comment
@@ -106,7 +120,7 @@ namespace SocialMediaApp.Controllers
                 DateCreated = DateTime.UtcNow,
                 DateUpdated = DateTime.UtcNow,
                 PostId = commentVM.PostId,
-                UserId = loggedInUserId
+                UserId = loggedInUserId.Value
             };
           
 
@@ -117,9 +131,11 @@ namespace SocialMediaApp.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPostReport(PostReportVM reportVM)
         {
-            int loggedInUserId = 1;
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+                return RedirectToLogIn();
 
-            await _service.ReportPostAsync(reportVM.PostId, loggedInUserId);
+            await _service.ReportPostAsync(reportVM.PostId, loggedInUserId.Value);
 
             return RedirectToAction("Index");
         }

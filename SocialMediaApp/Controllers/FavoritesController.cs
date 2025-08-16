@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialMediaApp.Data.Services;
 
@@ -15,8 +16,8 @@ namespace SocialMediaApp.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            int loggedInUserId = 1;
-            var myFavoritePosts = await _postService.GetAllFavoritedPostsAsync(loggedInUserId); 
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var myFavoritePosts = await _postService.GetAllFavoritedPostsAsync(int.Parse(loggedInUserId)); 
             return View(myFavoritePosts);
         }
     }
