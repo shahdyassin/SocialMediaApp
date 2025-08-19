@@ -74,6 +74,7 @@ namespace SocialMediaApp.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TogglePostLike(PostLikeVM postLikeVM)
         {
             var loggedInUserId = GetUserId();
@@ -81,8 +82,8 @@ namespace SocialMediaApp.Controllers
                 return RedirectToLogIn();
             await _service.TogglePostLikeAsync(postLikeVM.PostId , loggedInUserId.Value);
 
-           
-            return RedirectToAction("Index");
+           var post = await _service.GetPostByIdAsync(postLikeVM.PostId); 
+            return PartialView("Home/_Post" , post);
         }
         [HttpPost]
         public async Task<IActionResult> TogglePostFavorite(PostFavoriteVM favoriteVM)
@@ -92,8 +93,9 @@ namespace SocialMediaApp.Controllers
                 return RedirectToLogIn();
              
             await _service.TogglePostFavoriteAsync(favoriteVM.PostId, loggedInUserId.Value);
-
-            return RedirectToAction("Index");
+            
+            var post = await _service.GetPostByIdAsync(favoriteVM.PostId); 
+            return PartialView("Home/_Post" , post);
         }
         [HttpPost]
         public async Task<IActionResult> TogglePostVisibility(PostVisibilityVM visibilityVM)
@@ -106,6 +108,7 @@ namespace SocialMediaApp.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddPostComment(PostCommentVM commentVM)
         {
             var loggedInUserId = GetUserId();
@@ -125,8 +128,9 @@ namespace SocialMediaApp.Controllers
           
 
             await _service.AddPostCommentAsync(newComment);
+            var post = await _service.GetPostByIdAsync(commentVM.PostId);
+            return PartialView("Home/_Post", post);
             //Redirect to the index action to show the updated list of posts
-            return RedirectToAction("Index");
         }
         [HttpPost]
         public async Task<IActionResult> AddPostReport(PostReportVM reportVM)
@@ -140,12 +144,12 @@ namespace SocialMediaApp.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemovePostComment(RemoveCommentVM commentVM)
         {
-           
-
             await _service.RemovePostCommentAsync(commentVM.CommentId);
-            return RedirectToAction("Index");
+            var post = await _service.GetPostByIdAsync(commentVM.PostId);
+            return PartialView("Home/_Post", post);
         }
         [HttpPost]
         public async Task<IActionResult> PostRemove(PostRemoveVM removeVM)
