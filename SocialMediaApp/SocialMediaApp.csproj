@@ -18,10 +18,13 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.8" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\Shared\Components\SuggestedFriends\" />
+    <Folder Include="Views\Shared\SideBar\" />
     <Folder Include="wwwroot\images\avatar\" />
     <Folder Include="wwwroot\images\Uploaded\" />
     <Folder Include="wwwroot\images\placeholders\" />
